@@ -1,10 +1,11 @@
 @description('Specifies the location for resources.')
 param location string
-param scriptUri string // Full absolute https URI to the deploy_fabric_resources.sh script
+param scriptUri string // Full absolute https URI the script to be run.
 param fabricWorkspaceId string // Workspace ID for the Fabric resources
 param identity string // Fully qualified resource ID for the managed identity.
 param enableDeploymentScript bool = false
 
+// Create Azure Container Instance that downloads the script (defined as scriptUri) as /tmp/deploy.sh and run it.
 resource create_fabric_resources 'Microsoft.ContainerInstance/containerGroups@2021-09-01' = if (enableDeploymentScript) {
   name: 'create-fabric-resources-${uniqueString(deployment().name)}'
   location: location
