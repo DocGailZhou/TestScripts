@@ -92,8 +92,7 @@ module deployFabricResources './modules/deploy_fabric_resources.bicep' = {
   params: {
     location: location
     identity: appIdentity.outputs.resourceId
-    scriptUri: '${testBaseURL}infra/scripts/deploy_fabric_resources.sh'
-    baseURL: testBaseURL
+    scriptUri: '${testBaseURL}infra/deploy/fabric/provision_fabric_items.sh'
     fabricWorkspaceId: fabricWorkspaceId
     enableDeploymentScript: enableDeploymentScript
   }
