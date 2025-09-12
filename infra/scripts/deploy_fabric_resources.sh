@@ -3,6 +3,8 @@
 
 set -e
 
+# NOTE: This script downloads required files directly from the repository (repoBaseUrl) and does not rely on staging via blob storage.
+
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 <baseUrl> <fabricWorkspaceId>"
   echo "Example: $0 \"https://raw.githubusercontent.com/microsoft/unified-data-foundation-with-fabric-solution-accelerator/main/\" "

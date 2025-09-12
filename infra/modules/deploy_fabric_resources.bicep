@@ -1,32 +1,42 @@
 @description('Specifies the location for resources.')
 param location string
-param baseUrl string // Base URL for the script location
-param identity string // Fully qualified resource ID for the managed identity. 
+param scriptUri string // Full absolute https URI to the deploy_fabric_resources.sh script
+param repoBaseUrl string // Repository root URL used by the script to download other files
 param fabricWorkspaceId string // Workspace ID for the Fabric resources
-param timeout string = 'PT30M' // Optional timeout for the deployment script
-param forceUpdateTag string = '' // Optional tag to force re-execution when changed
+param identity string // Fully qualified resource ID for the managed identity.
+param enableDeploymentScript bool = false
 
-var myArguments = '"${baseUrl}" "${fabricWorkspaceId}"'
-
-
-resource create_fabric_resources 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  kind:'AzureCLI'
-  name: 'CreateFabricResourcesScriptDeployment'
-  location: location // Replace with your desired location
+resource create_fabric_resources 'Microsoft.ContainerInstance/containerGroups@2021-09-01' = if (enableDeploymentScript) {
+  name: 'create-fabric-resources-${uniqueString(deployment().name)}'
+  location: location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${identity}' : {}
+      '${identity}': {}
     }
   }
   properties: {
-    azCliVersion: '2.52.0'
-    primaryScriptUri: baseUrl
-    arguments: myArguments
-    timeout: timeout
-    forceUpdateTag: forceUpdateTag
-    retentionInterval: 'PT1H' // Specify the desired retention interval
-    cleanupPreference:'OnSuccess'
+    containers: [
+      {
+        name: 'fabric-deployer'
+        properties: {
+          image: 'mcr.microsoft.com/azure-cli:2.55.0'
+          resources: {
+            requests: {
+              cpu: 1
+              memoryInGB: 1
+            }
+          }
+          command: [
+            'sh'
+            '-c'
+            'curl -fsSL "${scriptUri}" | bash -s -- "${repoBaseUrl}" "${fabricWorkspaceId}"'
+          ]
+        }
+      }
+    ]
+    restartPolicy: 'Never'
+    osType: 'Linux'
   }
 }
 

@@ -27,6 +27,9 @@ param enableTelemetry bool = false
 @description('Required. Fabric Workspace ID for the deployment of the solution accelerator.')
 param fabricWorkspaceId string
 
+@description('Optional. Enable running the deploymentScript from the ARM template. Default is true to run the Python deployment script automatically.')
+param enableDeploymentScript bool = true
+
 var allTags = union(
   {
     'azd-env-name': solutionName
@@ -73,10 +76,11 @@ module appIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.
   }
 }
 
+// Storage account removed - deployment will not stage files in blob storage
 
 // Use a test URL to test code before the code is published to a Public GitHub repository for production use.
 // Need to push the code to this public repository to test deployment code. 
-var testBaseURL = 'https://raw.githubusercontent.com/DocGailZhou/TestCode/main/'
+var testBaseURL = 'https://raw.githubusercontent.com/DocGailZhou/TestScripts/main/'
 
 // This is the production URL for the solution accelerator code repository. Currently in private mode. 
 // Once the code is published to a public repository, this URL can be used for production deployments.
@@ -88,9 +92,11 @@ module deployFabricResources './modules/deploy_fabric_resources.bicep' = {
   params: {
     location: location
     identity: appIdentity.outputs.resourceId
-    //identity: appIdentity.outputs.principalId // Use principalId if the managed identity role assignment is done at the subscription level.
-   // baseUrl: baseURL // Use production URL for production deployments
-    baseUrl: testBaseURL // Use testBaseURL for testing purposes
+    scriptUri: '${testBaseURL}infra/scripts/deploy_fabric_resources.sh'
+    repoBaseUrl: testBaseURL
     fabricWorkspaceId: fabricWorkspaceId
+    enableDeploymentScript: enableDeploymentScript
   }
 }
+
+// storageAccount resource moved above to ensure dependencies and readability
