@@ -20,7 +20,8 @@ resource create_fabric_resources 'Microsoft.ContainerInstance/containerGroups@20
       {
         name: 'fabric-deployer'
         properties: {
-          image: 'mcr.microsoft.com/azure-cli:2.55.0'
+          image: 'mcr.microsoft.com/python:3.9'
+          //image: 'mcr.microsoft.com/azure-cli:2.55.0' // az command and a little python 
           resources: {
             requests: {
               cpu: 1
