@@ -1,7 +1,7 @@
 @description('Specifies the location for resources.')
 param location string
 param scriptUri string // Full absolute https URI to the deploy_fabric_resources.sh script
-param repoBaseUrl string // Repository root URL used by the script to download other files
+param baseURL string // Repository root URL used by the script to download other files
 param fabricWorkspaceId string // Workspace ID for the Fabric resources
 param identity string // Fully qualified resource ID for the managed identity.
 param enableDeploymentScript bool = false
@@ -30,7 +30,7 @@ resource create_fabric_resources 'Microsoft.ContainerInstance/containerGroups@20
           command: [
             'sh'
             '-c'
-            'curl -fsSL "${scriptUri}" | bash -s -- "${repoBaseUrl}" "${fabricWorkspaceId}"'
+            'curl -fsSL "${scriptUri}" | bash -s -- "${baseURL}" "${fabricWorkspaceId}"'
           ]
         }
       }
@@ -39,4 +39,3 @@ resource create_fabric_resources 'Microsoft.ContainerInstance/containerGroups@20
     osType: 'Linux'
   }
 }
-
